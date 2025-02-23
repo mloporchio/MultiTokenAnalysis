@@ -1,0 +1,7 @@
+.ipynb_checkpoints
+data
+figures
+lib
+results
+*.class
+*.ipynb
