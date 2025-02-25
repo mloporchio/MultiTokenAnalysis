@@ -88,29 +88,31 @@ public class WebGraphDiameter {
         long elapsed = System.nanoTime() - start;
         System.out.printf("%d\t%d\t%d\t%d\n", numNodes, numEdges, diameter, elapsed);
 	}
+
+    /**
+     * Computes the diameter of an undirected graph.
+     * @param graph input undirected graph
+     * @return diameter of the graph
+     */
+    public static int undirectedDiameter(ImmutableGraph graph) {
+        SumSweepUndirectedDiameterRadius dr = new SumSweepUndirectedDiameterRadius(graph, 
+            SumSweepUndirectedDiameterRadius.OutputLevel.DIAMETER, null);
+        dr.compute(); 
+        return dr.getDiameter();
+    }
+
+    /**
+     * Computes the diameter of a directed graph.
+     * @param graph input directed graph
+     * @return diameter of the graph
+     */
+    public static int directedDiameter(ImmutableGraph graph) {
+        SumSweepDirectedDiameterRadius dr = new SumSweepDirectedDiameterRadius(graph, 
+            SumSweepDirectedDiameterRadius.OutputLevel.DIAMETER, null, null);
+        dr.compute();
+        return dr.getDiameter();
+    }
 }
 
-/**
- * Computes the diameter of an undirected graph.
- * @param graph input undirected graph
- * @return diameter of the graph
- */
-public static int undirectedDiameter(ImmutableGraph graph) {
-    SumSweepUndirectedDiameterRadius dr = new SumSweepUndirectedDiameterRadius(graph, 
-        SumSweepUndirectedDiameterRadius.OutputLevel.DIAMETER, null);
-    dr.compute(); 
-    return dr.getDiameter();
-}
 
-/**
- * Computes the diameter of a directed graph.
- * @param graph input directed graph
- * @return diameter of the graph
- */
-public static int directedDiameter(ImmutableGraph graph) {
-    SumSweepDirectedDiameterRadius dr = new SumSweepDirectedDiameterRadius(graph, 
-        SumSweepDirectedDiameterRadius.OutputLevel.DIAMETER, null, null);
-	dr.compute();
-    return dr.getDiameter();
-}
 
