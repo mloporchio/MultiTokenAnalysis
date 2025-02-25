@@ -17,7 +17,7 @@ import it.unimi.dsi.webgraph.BVGraph;
 public class WebGraphBuilder {
 	public static void main(String[] args) {
 		if (args.length < 2) {
-			System.err.printf("Usage: %s <inputFile> <outputPrefix>\n", WebGraphBuilder.class.getName());
+			System.err.printf("Usage: java %s <inputFile> <outputPrefix>\n", WebGraphBuilder.class.getName());
 			System.exit(1);
 		}
 		final String inputFile = args[0];

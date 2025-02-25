@@ -17,10 +17,10 @@
 #   OUTPUT:
 #   The script outputs a TSV file that describes the main characteristics of the graph for each contract. 
 #   The file contains one row per contract with the following fields:  
-#   - **contract_id**: numerical identifier of the contract (in the range [0, 99]);  
-#   - **num_nodes**: number of nodes in the graph;  
-#   - **num_edges**: number of edges in the graph;  
-#   - **elapsed_time**: time taken for construction (in nanoseconds).  
+#   - contract_id: numerical identifier of the contract (in the range [0, 99]);  
+#   - num_nodes: number of nodes in the graph;  
+#   - num_edges: number of edges in the graph;  
+#   - elapsed_time: time taken for construction (in nanoseconds).  
 #
 #   Author: Matteo Loporchio
 #
@@ -36,7 +36,7 @@ printf "contract_id\tnum_nodes\tnum_edges\telapsed_time\n" > $OUTPUT_FILE
 for i in {0..99}; do
     WEBGRAPH_TEMP_EL="tmp_${i}.tsv"
     printf "%d\t" $i >> $OUTPUT_FILE
-    # First, transform each contract event list into an edge list.
+    # Firs-t, transform each contract event list into an edge list.
     java -Xmx128g ${BUILDER_NAME} "${INPUT_DIR}/contract_${i}.csv" "${GRAPH_DIR}/el_${i}.tsv" "${GRAPH_DIR}/nm_${i}.tsv" >> $OUTPUT_FILE
     # Then, transform each edge list into the WebGraph BVGraph format.
     cut -d$'\t' -f1,2 "${GRAPH_DIR}/el_${i}.tsv" > "${WEBGRAPH_DIR}/${WEBGRAPH_TEMP_EL}"

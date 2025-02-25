@@ -1,5 +1,5 @@
 #
-#   This script reads the original ERC-1155 transfer data sets (see https://zenodo.org/records/XXXXXX) 
+#   This script reads the original ERC-1155 transfer data set (see https://zenodo.org/records/XXXXXX) 
 #   and computes the top 100 contracts by number of raised transfers.
 #
 #   All transfers related to minting and burning operations (as well as self-transfers) are ignored.

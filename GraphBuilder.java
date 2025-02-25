@@ -59,7 +59,7 @@ public class GraphBuilder {
     
     public static void main(String[] args) {
 		if (args.length < 3) {
-			System.err.printf("Usage: %s <inputFile> <edgeListFile> <nodeMapFile>\n", GraphBuilder.class.getName());
+			System.err.printf("Usage: java %s <inputFile> <edgeListFile> <nodeMapFile>\n", GraphBuilder.class.getName());
 			System.exit(1);
 		}
 
