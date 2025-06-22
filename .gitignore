@@ -1,7 +1,10 @@
+__pycache__
 .ipynb_checkpoints
+bin
 data
 figures
 lib
 results
+unused
 *.class
 *.ipynb

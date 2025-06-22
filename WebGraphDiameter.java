@@ -44,8 +44,6 @@ public class WebGraphDiameter {
                 "Path of the files representing the graph in BVGraph format."),
                 new Switch("undirected", 'u', "undirected", 
                 "Specifies whether the graph should be treated as undirected."),
-                new Switch("comp", 'c', "comp", 
-                "Specifies whether the computation should be performed on the largest weakly connected component of the graph.")
             }
         );
 
@@ -59,7 +57,6 @@ public class WebGraphDiameter {
         }
         String filename = config.getString("filename"); // Get the unflagged option
         boolean undirected = config.getBoolean("undirected");
-        boolean comp = config.getBoolean("comp");
 
         long start = System.nanoTime();
 
@@ -70,12 +67,6 @@ public class WebGraphDiameter {
         if (undirected) {
 		    ImmutableGraph symmetricalGraph = Transform.symmetrize(graph);
             graph = symmetricalGraph;
-        }
-
-        // If necessary, compute the largest weakly connected component.
-        if (comp) {
-            ImmutableGraph largestComp = ConnectedComponents.getLargestComponent(graph, 0, null);
-            graph = largestComp;
         }
 
         // Compute the number of nodes and edges.

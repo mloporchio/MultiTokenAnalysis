@@ -1,0 +1,95 @@
+"""
+This Python script reads the list of transfers associated with an ERC-1155 contract
+and builds the weighted edge list and node map of the corresponding Token Transfer Graph.
+
+The input list is expected to be in NDJSON format (i.e., newline-delimited JSON) where each line
+contains a JSON object representing a token transfer.
+
+INPUT:
+    - <input_file>: path of the input NDJSON file
+    - <nm_file>: path of the output node map file
+    - <el_file>: path of the output edge list
+
+OUTPUT:
+    - <nm_file>: node map file
+    - <el_file>: edge list file
+
+PRINT:
+    - <num_nodes>: number of nodes in the graph
+    - <num_edges>: number of edges in the graph
+    - 
+
+Author: Matteo Loporchio
+"""
+
+import json
+import sys
+import time
+
+INPUT_FILE = sys.argv[1]
+NM_FILE = sys.argv[2]
+EL_FILE = sys.argv[3]
+
+nodes = dict()
+edges = []
+next_id = 0
+
+def get_or_create_id(address):
+    global nodes, next_id
+    if not (address in nodes):
+        nodes[address] = next_id
+        next_id += 1
+    return nodes[address]
+
+def are_equal(e_1, e_2):
+    return (e_1[0], e_1[1]) == (e_2[0], e_2[1])
+
+start = time.time_ns()
+
+input_fh = open(INPUT_FILE, 'r')
+for line in input_fh:
+    line = line.strip()
+    transfer = json.loads(line)
+    from_address = transfer['from']
+    to_address = transfer['to']
+    from_id = get_or_create_id(from_address)
+    to_id = get_or_create_id(to_address)
+    token_id = transfer['token_ids']
+    edges.append((from_id, to_id, token_id))
+input_fh.close()
+
+# Sort the list of edges and write it to a file.
+edges.sort(key=lambda x: (x[0], x[1]))
+
+# Write the list of edges to the output file.
+edge_fh = open(EL_FILE, 'w')
+num_unique_edges = 0
+if len(edges) > 0:
+    prev = edges[0]
+    count = 1
+    token_ids = set()
+    token_ids.add(prev[2])
+    for i in range(1, len(edges)):
+        curr = edges[i]
+        if are_equal(curr, prev):
+            count += 1
+            token_ids.add(curr[2])
+        else:
+            edge_fh.write(f"{prev[0]}\t{prev[1]}\t{count}\t{len(token_ids)}\n")
+            num_unique_edges += 1
+            prev = curr
+            count = 1
+            token_ids.clear()
+            token_ids.add(curr[2])
+    edge_fh.write(f"{prev[0]}\t{prev[1]}\t{count}\t{len(token_ids)}\n")
+    num_unique_edges += 1
+edge_fh.close()
+
+node_fh = open(NM_FILE, 'w')
+for k in nodes.keys():
+    node_fh.write(f"{k}\t{nodes[k]}\n")
+node_fh.close()
+
+end = time.time_ns()
+
+print(f"{len(nodes)}\t{num_unique_edges}\t{end-start}")

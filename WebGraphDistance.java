@@ -27,10 +27,6 @@ import com.martiansoftware.jsap.UnflaggedOption;
  * - average shortest path length;
  * - time elapsed for computation (in nanoseconds).
  * 
- * Note that the number of nodes, edges and diameter printed to stdout
- * refer to the largest weakly connected component of the graph 
- * if the corresponding option is passed.
- * 
  * @author Matteo Loporchio
  */
 public class WebGraphDistance {
@@ -44,8 +40,6 @@ public class WebGraphDistance {
                 "Path of the files representing the graph in BVGraph format."),
                 new Switch("undirected", 'u', "undirected", 
                 "Specifies whether the graph should be treated as undirected."),
-                new Switch("comp", 'c', "comp", 
-                "Specifies whether the computation should be performed on the largest weakly connected component of the graph.")
             }
         );
 
@@ -59,7 +53,6 @@ public class WebGraphDistance {
         }
         String filename = config.getString("filename");
         boolean undirected = config.getBoolean("undirected");
-        boolean comp = config.getBoolean("comp");
 
         long start = System.nanoTime();
 
@@ -70,12 +63,6 @@ public class WebGraphDistance {
         if (undirected) {
 		    ImmutableGraph symmetricalGraph = Transform.symmetrize(graph);
             graph = symmetricalGraph;
-        }
-
-        // If necessary, compute the largest weakly connected component.
-        if (comp) {
-            ImmutableGraph largestComp = ConnectedComponents.getLargestComponent(graph, 0, null);
-            graph = largestComp;
         }
 
         // Compute the number of nodes and edges.

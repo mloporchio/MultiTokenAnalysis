@@ -7,9 +7,9 @@
 #   The dataset of ERC-1155 transfers.
 #
 #   OUTPUT:
-#   A CSV file where each row has the following fields:
+#   A TSV file where each row has the following fields:
 #   - block_id: height of the block;
-#   - num_active: number of active contracts up to block_id;
+#   - num_active_contracts: number of active contracts up to block_id;
 #
 #   PRINT:
 #   The number of transfers read from the input file.
@@ -17,42 +17,35 @@
 #   Author: Matteo Loporchio
 #
 
-TRANSFERS_FILE = 'data/erc1155_transfers.csv'
-OUTPUT_FILE = 'results/active_contracts.csv'
+import polars as pl
 
-f1 = open(TRANSFERS_FILE, 'r')
-f2 = open(OUTPUT_FILE, 'w')
+TRANSFERS_FILE = 'data/erc1155_transfers.parquet'
+OUTPUT_FILE = 'results/active_contracts.tsv'
 
-contractIds = set()
-blockMap = dict()
+def filter_transfers(df):
+    return (df.filter(~(pl.col('operator').is_null() | pl.col('from').is_null() | pl.col('to').is_null()))
+            .filter(~(pl.col('token_ids').is_null()) & (pl.col('token_ids').list.len() > 0))
+            .filter(~(pl.col('amounts').is_null()) & (pl.col('amounts').list.len() > 0))
+            .filter(pl.col('token_ids').list.len() == pl.col('amounts').list.len()))
+
+df = pl.read_parquet(TRANSFERS_FILE)
+df = filter_transfers(df)
+
+contracts = set()
+block_map = dict()
 count = 0
 
-while True:
-    line = f1.readline()
-    if not line:
-        break
-    line = line.strip()
-    parts = line.split(',')
-    blockId = int(parts[1])
-    contractId = int(parts[2])
-    fromId = int(parts[5])
-    toId = int(parts[6])
-    tokenId = int(parts[7])
-    value = int(parts[8])
-    
-    # This ignores all invalid transfers (i.e., those that do not)
-    if (not ((fromId != -1) and (toId != -1) and (tokenId != '-1') and (value != '-1'))):
-        continue
-
-    contractIds.add(contractId)
-    blockMap[blockId] = len(contractIds)
+for row in df.iter_rows():
+    contract = row[0]
+    block_id = row[4]
+    contracts.add(contract)
+    block_map[block_id] = len(contracts)
     count += 1
 
+fh = open(OUTPUT_FILE, 'w')
+fh.write('block_id\tnum_active_contracts\n')
+for k, v in block_map.items():
+    fh.write(f'{k}\t{v}\n')
+fh.close()
 
-for k, v in blockMap.items():
-    f2.write(f'{k},{v}\n')
-
-f1.close()
-f2.close()
-
-print(f'Lines read: {count}')
+print(f'Rows processed: {count}')

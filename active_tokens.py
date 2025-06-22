@@ -8,9 +8,9 @@
 #   The dataset of ERC-1155 transfers.
 #
 #   OUTPUT:
-#   A CSV file where each row has the following fields:
+#   A TSV file where each row has the following fields:
 #   - block_id: height of the block;
-#   - num_active: number of active tokens up to block_id;
+#   - num_active_tokens: number of active tokens up to block_id;
 #
 #   PRINT:
 #   The number of transfers read from the input file.
@@ -18,40 +18,37 @@
 #   Author: Matteo Loporchio
 #
 
-TRANSFERS_FILE = 'data/erc1155_transfers.csv'
-OUTPUT_FILE = 'results/active_tokens.csv'
+import polars as pl
 
-f1 = open(TRANSFERS_FILE, 'r')
-f2 = open(OUTPUT_FILE, 'w')
+TRANSFERS_FILE = 'data/erc1155_transfers.parquet'
+OUTPUT_FILE = 'results/active_tokens.tsv'
+
+def filter_transfers(df):
+    return (df.filter(~(pl.col('operator').is_null() | pl.col('from').is_null() | pl.col('to').is_null()))
+            .filter(~(pl.col('token_ids').is_null()) & (pl.col('token_ids').list.len() > 0))
+            .filter(~(pl.col('amounts').is_null()) & (pl.col('amounts').list.len() > 0))
+            .filter(pl.col('token_ids').list.len() == pl.col('amounts').list.len()))
 
 pair_set = set()
 block_map = dict()
 count = 0
 
-while True:
-    line = f1.readline()
-    if not line:
-        break
-    line = line.strip()
-    parts = line.split(',')
-    block_id = int(parts[1])
-    contract_id = int(parts[2])
-    from_id = int(parts[5])
-    to_id = int(parts[6])
-    token_id = int(parts[7])
-    amount = int(parts[8])
-    
-    if (not ((from_id != -1) and (to_id != -1) and (token_id != '-1') and (amount != '-1'))):
-        continue
+df = pl.read_parquet(TRANSFERS_FILE)
+df = filter_transfers(df)
 
-    pair_set.add((contract_id, token_id))
+for row in df.iter_rows():
+    contract = row[0]
+    block_id = row[4]
+    token_ids = row[10]
+    for token_id in token_ids:
+        pair_set.add((contract, token_id))
     block_map[block_id] = len(pair_set)
     count += 1
 
+fh = open(OUTPUT_FILE, 'w')
+fh.write('block_id\tnum_active_tokens\n')
 for k, v in block_map.items():
-    f2.write(f'{k},{v}\n')
+    fh.write(f'{k}\t{v}\n')
+fh.close()
 
-f1.close()
-f2.close()
-
-print(f'Lines read: {count}')
+print(f'Rows processed: {count}')

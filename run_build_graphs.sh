@@ -25,21 +25,35 @@
 #   Author: Matteo Loporchio
 #
 
-BUILDER_NAME="GraphBuilder"
+NUM_CONTRACTS=100
+BUILDER="build_graph.py"
 INPUT_DIR="results/contracts"
 GRAPH_DIR="results/graphs"
+TEMP_DIR="tmp"
 WEBGRAPH_DIR="results/webgraphs"
 WEBGRAPH_BUILDER="WebGraphBuilder"
 OUTPUT_FILE="results/graph_creation.tsv"
 
+# Create the output directories, if needed.
+mkdir -p $GRAPH_DIR $WEBGRAPH_DIR $TEMP_DIR
+
 printf "contract_id\tnum_nodes\tnum_edges\telapsed_time\n" > $OUTPUT_FILE
-for i in {0..99}; do
-    WEBGRAPH_TEMP_EL="tmp_${i}.tsv"
+for ((i = 0 ; i < $NUM_CONTRACTS ; i++)); do
+    echo "Building graph for contract ${i}..."
+    CONTRACT_FILE="${INPUT_DIR}/contract_${i}.json"
+    NM_FILE="${GRAPH_DIR}/nm_${i}.tsv"
+    EL_FILE="${GRAPH_DIR}/el_${i}.tsv"
+    TEMP_EL_FILE="${WEBGRAPH_DIR}/tmp_${i}.tsv"
+    WEBGRAPH_OUTPUT="${WEBGRAPH_DIR}/webgraph_${i}"
     printf "%d\t" $i >> $OUTPUT_FILE
-    # Firs-t, transform each contract event list into an edge list.
-    java -Xmx128g ${BUILDER_NAME} "${INPUT_DIR}/contract_${i}.csv" "${GRAPH_DIR}/el_${i}.tsv" "${GRAPH_DIR}/nm_${i}.tsv" >> $OUTPUT_FILE
-    # Then, transform each edge list into the WebGraph BVGraph format.
-    cut -d$'\t' -f1,2 "${GRAPH_DIR}/el_${i}.tsv" > "${WEBGRAPH_DIR}/${WEBGRAPH_TEMP_EL}"
-    java -Xmx128g ${WEBGRAPH_BUILDER} "${WEBGRAPH_DIR}/${WEBGRAPH_TEMP_EL}" "${WEBGRAPH_DIR}/webgraph_${i}"
-    rm "${WEBGRAPH_DIR}/${WEBGRAPH_TEMP_EL}" # Delete temporary edge list
+    # First, transform each contract event list into an edge list.
+    python3 ${BUILDER} ${CONTRACT_FILE} ${NM_FILE} ${EL_FILE} >> $OUTPUT_FILE
+    # Transform each edge list into the WebGraph BVGraph format.
+    cut -d$'\t' -f1,2 ${EL_FILE} > ${TEMP_EL_FILE}
+    java -Xmx128g -cp "bin:lib/*" ${WEBGRAPH_BUILDER} ${TEMP_EL_FILE} ${WEBGRAPH_OUTPUT}
+    rm ${TEMP_EL_FILE} # Delete temporary edge list
+    echo "Done!"
 done
+
+# Delete the temporary directory.
+rm -rf $TEMP_DIR
