@@ -1,7 +1,29 @@
-"""
+#
+#   This script processes the dataset of ERC-1155 transfers and builds a separate file for each contract.
+#   Each file contains the list of transfers triggered by the corresponding contract, in newline-delimited JSON format.
+#
+#   The script also computes a ranking of the contracts based on the number of transfers they triggered 
+#   and writes the ranking to a separate TSV file.
+#
+#   INPUT:
+#   - The dataset of ERC-1155 transfers in Parquet format (see `run_prepare.py`).
+#   - The output directory where the files for each contract will be written.
+#   - The file where the contract ranking will be written.
+#
+#   OUTPUT:
+#   - A separate file JSON file for each ERC-1155 contract, containing the list of transfers triggered by that contract.
+#   - A TSV file containing the ranking of the contracts based on the number of transfers they triggered.
+#   
+#   Note that the TSV ranking file has the following format
+#   contract_id    address    num_transfer
+#   where:
+#      - contract_id is a unique integer identifier for each contract (starting from 0).
+#      - address is the address of the contract.
+#      - num_transfer is the number of transfers triggered by the contract.
+#
+#   Author: Matteo Loporchio
+#
 
-Author: Matteo Loporchio
-"""
 import polars as pl
 import sys
 import utils

@@ -1,13 +1,13 @@
 __pycache__
 .ipynb_checkpoints
 .vscode
-airdrop/
+airdrop
 bin/
 data/old/
 data/*.gz
 data/*.parquet
 figures/*.pdf
-labeling/
+labeling
 lib/*.jar
 results/
 supply/

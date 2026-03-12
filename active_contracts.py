@@ -12,7 +12,7 @@
 #   - num_active_contracts: number of active contracts up to block_id;
 #
 #   PRINT:
-#   The number of transfers read from the input file.
+#   The number of transfers read from the input file is printed to stdout.
 #
 #   Author: Matteo Loporchio
 #

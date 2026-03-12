@@ -12,6 +12,8 @@ For space reasons, all data regarding ERC-1155 token transfers are available in 
 
 https://doi.org/10.5281/zenodo.14901527
 
+
+
 ## Technologies used
 
 - Bash scripting
@@ -29,8 +31,8 @@ https://doi.org/10.5281/zenodo.14901527
 
 Graphs are imported and managed using the igraph and WebGraph libraries.
 For the analysis, we adopt a **Weighted Token Transfer Graph (WTTG)**, namely a weighted directed graph where:
-    - each node represents an Ethereum address;
-    - each edge (u, v) represents all transfers from address u to address v.
-    - each edge is labeled with:
-        - the total number of transfers;
-        - the number of unique tokens transferred;
+- each node represents an Ethereum address;
+- each edge (u, v) represents all transfers from address u to address v.
+- each edge is labeled with:
+    - the total number of transfers;
+    - the number of unique tokens transferred.

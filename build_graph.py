@@ -1,26 +1,35 @@
-"""
-This Python script reads the list of transfers associated with an ERC-1155 contract
-and builds the weighted edge list and node map of the corresponding Token Transfer Graph.
-
-The input list is expected to be in NDJSON format (i.e., newline-delimited JSON) where each line
-contains a JSON object representing a token transfer.
-
-INPUT:
-    - <input_file>: path of the input NDJSON file
-    - <nm_file>: path of the output node map file
-    - <el_file>: path of the output edge list
-
-OUTPUT:
-    - <nm_file>: node map file
-    - <el_file>: edge list file
-
-PRINT:
-    - <num_nodes>: number of nodes in the graph
-    - <num_edges>: number of edges in the graph
-    - 
-
-Author: Matteo Loporchio
-"""
+#
+#   This script reads the list of transfers associated with an ERC-1155 contract
+#   and builds the edge list and node map of the corresponding Token Transfer Graph.
+#
+#   The input list is expected to be in newline-delimited JSON format.
+#
+#   INPUT:
+#   -   path of the input newline-delimited JSON file;
+#   -   path of the output node map file;
+#   -   path of the output edge list file.
+#
+#   OUTPUT:
+#   -   A TSV file representing the node map of the graph. 
+#       The output node map file has the following format:
+#           <address>\t<node_id>
+#       where <address> represents the Ethereum address of the node and 
+#       <node_id> is the unique integer identifier of the node (starting from 0).
+#   -   A TSV file representing the edge list of the graph.
+#       The output edge list file has the following format:
+#           <from_id>\t<to_id>\t<count>\t<unique_token_ids>
+#       where <from_id> and <to_id> are the integer identifiers of the source and target nodes, respectively,
+#       <count> is the number of transfers from address <from_id> to address <to_id> and <unique_token_ids> 
+#       is the number of unique token IDs transferred from <from_id> to <to_id>.
+#
+#   PRINT:
+#   The script prints to stdout the following values separated by a TAB character:
+#   -   number of nodes in the graph;
+#   -   number of edges in the graph;
+#   -   time taken to build the graph (in nanoseconds).
+#
+#   Author: Matteo Loporchio
+#
 
 import json
 import sys

@@ -34,6 +34,9 @@ WEBGRAPH_BUILDER="WebGraphBuilder"
 CENT_FILE="results/centralization.tsv"
 SELECTED_LIST_FILE="${TEMP_DIR}/selected.tsv"
 OUTPUT_FILE="results/graph_creation.tsv"
+BIN_DIR="bin"
+LIB_DIR="lib"
+CLASSPATH="${BIN_DIR}:${LIB_DIR}/*"
 
 # Create the output directories, if needed.
 mkdir -p $GRAPH_DIR $WEBGRAPH_DIR $TEMP_DIR
@@ -63,7 +66,7 @@ while IFS=$'\t' read -r i address in_cent out_cent; do
     python3 ${BUILDER} ${CONTRACT_FILE} ${NM_FILE} ${EL_FILE} >> $OUTPUT_FILE
     # Transform each edge list into the WebGraph BVGraph format.
     cut -d$'\t' -f1,2 ${EL_FILE} > ${TEMP_EL_FILE}
-    java -Xmx128g -cp "bin:lib/*" ${WEBGRAPH_BUILDER} ${TEMP_EL_FILE} ${WEBGRAPH_OUTPUT}
+    java -Xmx128g -cp "${CLASSPATH}" ${WEBGRAPH_BUILDER} ${TEMP_EL_FILE} ${WEBGRAPH_OUTPUT}
     rm ${TEMP_EL_FILE} # Delete temporary edge list
     echo "Done!"
 done < "${SELECTED_LIST_FILE}"

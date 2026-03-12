@@ -1,18 +1,19 @@
-"""
-This Python script computes the coverage (i.e., percentage of graph nodes in the largest component)
-for both weakly and strongly connected components. 
-
-INPUT:
-    The script takes as input the following arguments:
-    - path of the node -> component_id mapping file (produced by the graph_connectivity executable)
-
-PRINT:
-    The script prints to stdout the following values separated by a TAB character:
-    - coverage of the weakly connected component;
-    - coverage of the strongly connected component.
-
-Author: Matteo Loporchio
-"""
+#
+#   This Python script computes the coverage (i.e., percentage of graph nodes in the largest component)
+#   for both weakly and strongly connected components of an ERC-1155 Token Transfer Graph.
+#
+#   INPUT:
+#   The script takes as input the following arguments:
+#     - path of the (node -> component_id) mapping file.
+#       Note that this file is produced by the `graph_connectivity` executable when analyzing the graph.
+#
+#   PRINT:
+#   The script prints to stdout the following values separated by a TAB character:
+#     - coverage of the weakly connected component;
+#     - coverage of the strongly connected component.
+#
+#   Author: Matteo Loporchio
+#
 
 import polars as pl
 import sys
