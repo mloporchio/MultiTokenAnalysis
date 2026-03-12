@@ -8,6 +8,7 @@ import utils
 
 TRANSFERS_FILE = sys.argv[1]
 OUTPUT_DIR = sys.argv[2]
+RANKING_FILE = sys.argv[3]
 NULL_ADDRESS = "0x0000000000000000000000000000000000000000"
 
 # Read the transfers dataset and remove all non-standard transfer events.
@@ -19,16 +20,23 @@ tdf = tdf.explode(['token_ids', 'amounts'])
 # Filter also all self-transfers (i.e., those where sender and receiver coincide).
 tdf = tdf.filter((pl.col('from') != NULL_ADDRESS) & (pl.col('to') != NULL_ADDRESS) & (pl.col('from') != pl.col('to')))
 
-# Compute the contract ranking based on the number of raised transfers.
-ranking = tdf.group_by('address').len().sort(by='len', descending=True).head(100)
-
-fh = open(f'{OUTPUT_DIR}/ranking.tsv', 'w')
-fh.write('rank\taddress\tnum_transfer\n')
-id = 0
+# Compute the contract ranking based on the number of raised transfers and write the ranking to a file.
+ranking = tdf.group_by('address').len().sort(by='len', descending=True).rename({'len': 'num_transfer'})
+fh = open(RANKING_FILE, 'w')
+fh.write('contract_id\taddress\tnum_transfer\n')
+contract_id = 0
+contract_mapping = dict()
 for row in ranking.iter_rows(named=True):
-    current_contract = row['address']
-    current_transfers = tdf.filter(pl.col('address') == current_contract)
-    current_transfers.write_ndjson(f'{OUTPUT_DIR}/contract_{id}.json')
-    fh.write(f'{id}\t{current_contract}\t{len(current_transfers)}\n')
-    id += 1
+    contract_address = row['address']
+    num_transfers = row['num_transfer']
+    fh.write(f'{contract_id}\t{contract_address}\t{num_transfers}\n')
+    contract_mapping[contract_address] = contract_id
+    contract_id += 1
 fh.close()
+
+# Split the dataset into separate files, one for each contract.
+groups = tdf.group_by('address', maintain_order=True)
+for name, data in groups:
+    contract_address = name[0]
+    contract_id = contract_mapping[contract_address]
+    data.write_ndjson(f'{OUTPUT_DIR}/contract_{contract_id}.json')

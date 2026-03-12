@@ -5,7 +5,7 @@
 # Author: Matteo Loporchio
 #
 
-NUM_CONTRACTS=100
+INPUT_FILE="results/graph_creation.tsv"
 OUTPUT_DIR="results"
 OUTPUT_FILE="${OUTPUT_DIR}/graph_stats.tsv"
 DEGREE_DIR="${OUTPUT_DIR}/degree"
@@ -17,7 +17,8 @@ CLASSPATH="bin:lib/*"
 mkdir -p $DEGREE_DIR $CONNECTIVITY_DIR
 
 printf "contract_id\tnum_nodes\tnum_edges\tcoverage_wcc\tcoverage_scc\tclustering\tdensity\treciprocity\tdistance\tdiameter\n" > $OUTPUT_FILE
-for (( i=0 ; i < NUM_CONTRACTS ; i++)) do
+CONTRACT_IDS=( $(cut -d$'\t' -f1 ${INPUT_FILE} | tail -n +2 | tr '\n' ' ') )
+for i in "${CONTRACT_IDS[@]}"; do
     echo "Processing contract $i..."
     INPUT_FILE="results/graphs/el_${i}.tsv"
     WEBGRAPH_PREFIX="results/webgraphs/webgraph_${i}"
