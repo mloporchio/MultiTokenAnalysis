@@ -1,4 +1,4 @@
-# Analysis of ERC-1155 transfers
+# Analysis of ERC-1155 token transfers
 
 This repository contains code for reproducing the results described in the following papers:
 
@@ -14,7 +14,7 @@ https://doi.org/10.5281/zenodo.14901527
 
 ## Technologies used
 
-- Bash
+- Bash scripting
 - C++
     - igraph (https://igraph.org/)
 - Java
@@ -28,9 +28,7 @@ https://doi.org/10.5281/zenodo.14901527
 ## Graph models
 
 Graphs are imported and managed using the igraph and WebGraph libraries.
-The currently supported graph models are:
-
-1) **Weighted Token Transfer Graph (WTTG)**, i.e., a weighted directed graph where:
+For the analysis, we adopt a **Weighted Token Transfer Graph (WTTG)**, namely a weighted directed graph where:
     - each node represents an Ethereum address;
     - each edge (u, v) represents all transfers from address u to address v.
     - each edge is labeled with:
