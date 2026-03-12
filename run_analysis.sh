@@ -1,6 +1,19 @@
 #!/bin/bash
 #
-#   This script runs the experiments for the paper.
+#   This script runs the main experiments regarding graphs.
+#
+#   The script processes each graph and computes the following measures:
+#   - num_nodes: number of nodes in the graph;
+#   - num_edges: number of edges in the graph;
+#   - coverage_wcc: coverage of the largest weakly connected component;
+#   - coverage_scc: coverage of the largest strongly connected component;
+#   - clustering: global clustering coefficient (i.e., transitivity);
+#   - density: graph density;
+#   - reciprocity: graph reciprocity;
+#   - distance: average shortest path length;
+#   - diameter: graph diameter.
+#
+#   Results are written in a TSV file where each row describes the graph of a single contract.
 #
 #   Author: Matteo Loporchio
 #

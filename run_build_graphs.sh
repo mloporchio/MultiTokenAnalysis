@@ -1,26 +1,31 @@
 #!/bin/bash
 #
-#   This script reads the list of ERC-1155 transfers associated with each contract (in CSV format)
-#   and constructs the weighted directed graph of the contract.
-#   The transfer lists must be in the CSV format produced by the "create_contracts.py" script.
-#   
-#   More precisely, this script:
-#   1) Constructs the weighted directed graph to be used with the igraph library;
-#   2) Constructs the unweighted directed graph to be used with the WebGraph library;
+#   This script builds the Token Transfer Graph of each ERC-1155 contract in accordance
+#   to the list of its transfers. 
 #
-#   Graph (2) is obtained from graph (1) by removing all weights associated with the edges.
-#   This step is necessary because WebGraph does not support operations on weighted graphs.
+#   First, the script produces two text files for each contract: 
+#   1) a node map file that associates each node in the graph to its real Ethereum address;
+#   2) an edge list file that describes the edges of the graph in terms of source node, target node and weight.
 #
-#   INPUT:
-#   - Path of the directory containing all contract transfer lists in CSV format.
+#   The edge list file is then transformed into the BVGraph format to be used with the WebGraph library.
+#
+#   NOTICE: For space reasons, the script only builds the graphs of the contracts whose 
+#   in-degree and out-degree centralization indices are different from 1. 
+#   This information is retrieved from the "results/centralization.tsv" file,
+#   which is produced by the `run_centralization.sh` script. 
 #
 #   OUTPUT:
-#   The script outputs a TSV file that describes the main characteristics of the graph for each contract. 
-#   The file contains one row per contract with the following fields:  
-#   - contract_id: numerical identifier of the contract (in the range [0, 99]);  
-#   - num_nodes: number of nodes in the graph;  
-#   - num_edges: number of edges in the graph;  
-#   - elapsed_time: time taken for construction (in nanoseconds).  
+#   The script outputs a TSV file that describes the main characteristics of each constructed graph.
+#   The file has the following structure:
+#
+#   <contract_id>\t<address>\t<num_nodes>\t<num_edges>\t<elapsed_time>
+#
+#   where:
+#   - contract_id: numerical identifier of the contract;
+#   - address: address of the contract;
+#   - num_nodes: number of nodes in the graph;
+#   - num_edges: number of edges in the graph;
+#   - elapsed_time: time taken for construction (in nanoseconds).
 #
 #   Author: Matteo Loporchio
 #
@@ -28,7 +33,7 @@
 BUILDER="build_graph.py"
 INPUT_DIR="results/contracts"
 GRAPH_DIR="results/graphs"
-TEMP_DIR="temp"
+TEMP_DIR="tmp"
 WEBGRAPH_DIR="results/webgraphs"
 WEBGRAPH_BUILDER="WebGraphBuilder"
 CENT_FILE="results/centralization.tsv"

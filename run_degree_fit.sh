@@ -1,11 +1,25 @@
 #!/bin/bash
 #
-# This script runs plfit on the degree distributions of contracts.
-# Author: Matteo Loporchio
+#   This script fits power law functions on the in-degree and out-degree distributions
+#   of the ERC-1155 Token Transfer Graphs.
+#
+#   NOTICE: The script requires the `plfit` utility (https://github.com/ntamas/plfit) to be installed.
+#   The PLFIT_EXEC variable should be set in advance to the path of the `plfit` executable.
+#
+#   The script produces a TSV file with the following fields:
+#   - contract_id: numerical identifier of the contract;
+#   - measure: type of degree distribution (in-degree or out-degree);
+#   - alpha: fitted exponent of the power law distribution;
+#   - x_min: minimum X value for which the power law distribution holds;
+#   - L: log-likelihood of the fitted distribution;
+#   - D: Kolmogorov-Smirnov statistic of the fitted distribution;
+#   - p_value: p-value of the goodness-of-fit test.
+#   
+#   Author: Matteo Loporchio
 #
 
 INPUT_FILE="results/graph_creation.tsv"
-OUTPUT_FILE="results/graph_degree_fit_new.tsv"
+OUTPUT_FILE="results/graph_degree_fit.tsv"
 PLFIT_EXEC="~/plfit/build/src/plfit"
 TEMP_DIR="tmp"
 MEASURES=("in_deg" "out_deg")

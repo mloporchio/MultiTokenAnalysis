@@ -2,9 +2,10 @@
  * @file graph_assortativity.cpp
  * @author Matteo Loporchio
  * @date 2025-06-20
- * 
+ *
  *  This program reads the weighted edge list of the Token Transfer Graph 
- *  and computes the degree assortativity of the graph. 
+ *  and computes the degree assortativity of the graph. Note that the graph is considered as unweighted 
+ *  and possible combinations of IN and OUT degree are considered.
  *
  *  INPUT:
  *  The weighted edge list of the Token Transfer Graph.
@@ -16,9 +17,10 @@
  *  The program prints the following information to stdout:
  *      - number of graph nodes;
  *      - number of graph edges;
- *      - unweighted degree assortativity of the graph;
- *      - weighted (OUT-IN) assortativity coefficient based on the total number of transfers;
- *      - weighted (OUT-IN) assortativity coefficient based on the number of unique tokens transferred;
+ *      - IN-IN assortativity coefficient;
+ *      - IN-OUT assortativity coefficient;
+ *      - OUT-IN assortativity coefficient;
+ *      - OUT-OUT assortativity coefficient;
  *      - elapsed time (in nanoseconds).
  */
 
@@ -54,37 +56,48 @@ int main(int argc, char **argv) {
     igraph_integer_t num_nodes = igraph_vcount(&graph);
     igraph_integer_t num_edges = igraph_ecount(&graph);
 
-    // Compute the unweighted degree assortativity.
-    igraph_real_t assort;
-    igraph_assortativity_degree(&graph, &assort, IGRAPH_DIRECTED);
+    // Compute the degree.
+    igraph_vector_int_t in_deg_v, out_deg_v;
+    igraph_vector_int_init(&in_deg_v, num_nodes);
+    igraph_vector_int_init(&out_deg_v, num_nodes);
+    igraph_degree(&graph, &in_deg_v, igraph_vss_all(), IGRAPH_IN, 1);
+    igraph_degree(&graph, &out_deg_v, igraph_vss_all(), IGRAPH_OUT, 1);
 
-    // Compute the strength of the nodes and weighted (OUT-IN) assortativity coefficients.
-    igraph_real_t assort_ntr, assort_ntk;
-    igraph_vector_t in_str_ntr, out_str_ntr, in_str_ntk, out_str_ntk;
-    igraph_vector_init(&in_str_ntr, num_nodes);
-    igraph_vector_init(&out_str_ntr, num_nodes);
-    igraph_vector_init(&in_str_ntk, num_nodes);
-    igraph_vector_init(&out_str_ntk, num_nodes);
-    igraph_strength(&graph, &in_str_ntr, igraph_vss_all(), IGRAPH_IN, 0, &w_ntr);
-    igraph_strength(&graph, &out_str_ntr, igraph_vss_all(), IGRAPH_OUT, 0, &w_ntr);
-    igraph_strength(&graph, &in_str_ntk, igraph_vss_all(), IGRAPH_IN, 0, &w_ntk);
-    igraph_strength(&graph, &out_str_ntk, igraph_vss_all(), IGRAPH_OUT, 0, &w_ntk);
-    igraph_assortativity(&graph, &out_str_ntr, &in_str_ntr, &assort_ntr, IGRAPH_DIRECTED, 1);
-    igraph_assortativity(&graph, &out_str_ntk, &in_str_ntk, &assort_ntk, IGRAPH_DIRECTED, 1);
+    // Convert degree vectors to double precision for assortativity computation.
+    igraph_vector_t in_deg, out_deg;
+    igraph_vector_init(&in_deg, num_nodes);
+    igraph_vector_init(&out_deg, num_nodes);
+    for (igraph_integer_t i = 0; i < num_nodes; ++i)
+    {
+        VECTOR(in_deg)[i] = (double)VECTOR(in_deg_v)[i];
+        VECTOR(out_deg)[i] = (double)VECTOR(out_deg_v)[i];
+    }
 
-    // Free the memory occupied by the graph.
+    // Compute the unweighted assortativity coefficients.
+    igraph_real_t ii_a, io_a, oi_a, oo_a;
+    igraph_assortativity(&graph, &in_deg, &in_deg, &ii_a, IGRAPH_DIRECTED, 1);
+    igraph_assortativity(&graph, &in_deg, &out_deg, &io_a, IGRAPH_DIRECTED, 1);
+    igraph_assortativity(&graph, &out_deg, &in_deg, &oi_a, IGRAPH_DIRECTED, 1);
+    igraph_assortativity(&graph, &out_deg, &out_deg, &oo_a, IGRAPH_DIRECTED, 1);
+
+    // Free the memory occupied by the data structures used.
     igraph_destroy(&graph);
     igraph_vector_destroy(&w_ntr);
     igraph_vector_destroy(&w_ntk);
+    igraph_vector_int_destroy(&in_deg_v);
+    igraph_vector_int_destroy(&out_deg_v);
+    igraph_vector_destroy(&in_deg);
+    igraph_vector_destroy(&out_deg);
 
     // Print information to stdout.
     auto end = high_resolution_clock::now();
     auto elapsed = duration_cast<nanoseconds>(end - start);
     cout << num_nodes << '\t' 
         << num_edges << '\t' 
-        << assort << '\t' 
-        << assort_ntr << '\t'
-        << assort_ntk << '\t'
+        << ii_a << '\t' 
+        << io_a << '\t'
+        << oi_a << '\t'
+        << oo_a << '\t'
         << elapsed.count() << '\n';
     return 0;
 }

@@ -1,11 +1,26 @@
 #!/bin/bash
-#   This script reads the list of ERC-1155 transfers associated with each contract (in CSV format
+#
+#   This script iterates through all ERC-1155 contracts and builds the associated Token Transfer Graphs
+#   based on their lists of transfers. For each graph, the script then computes the
+#   in-degree and out-degree centralization indices and writes the results to a TSV file.
+#
+#   The output TSV file contains one row per contract with the following fields:
+#   - contract_id: numerical identifier of the contract;
+#   - address: address of the contract;
+#   - num_nodes: number of nodes in the graph;
+#   - num_edges: number of edges in the graph;
+#   - in_cent: in-degree centralization index;
+#   - out_cent: out-degree centralization index.
+#
+#   Author: Matteo Loporchio
+#
 
 BUILDER="build_graph.py"
 RANKING_FILE="results/ranking.tsv"
 INPUT_DIR="results/contracts"
-TEMP_DIR="temp"
 OUTPUT_FILE="results/graph_centralization.tsv"
+TEMP_DIR="tmp"
+BIN_DIR="bin"
 
 mkdir -p "${TEMP_DIR}"
 
@@ -20,7 +35,7 @@ while IFS=$'\t' read -r CONTRACT_ID ADDRESS NUM_TRANSFER; do
     (python3 "${BUILDER}" "${CONTRACT_FILE}" "${NM_FILE}" "${EL_FILE}") 1> /dev/null 2>&1
     # Analyze the graph and compute the in-degree and out-degree centralization indices.
     echo "Analyzing centralization..."
-    CENT_OUTPUT=$(./graph_centralization "${EL_FILE}")
+    CENT_OUTPUT=$(./${BIN_DIR}/graph_centralization "${EL_FILE}")
     NUM_NODES=$(echo "${CENT_OUTPUT}" | cut -d$'\t' -f1)
     NUM_EDGES=$(echo "${CENT_OUTPUT}" | cut -d$'\t' -f2)
     IN_CENT=$(echo "${CENT_OUTPUT}" | cut -d$'\t' -f3)

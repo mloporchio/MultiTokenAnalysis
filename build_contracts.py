@@ -15,7 +15,7 @@
 #   - A TSV file containing the ranking of the contracts based on the number of transfers they triggered.
 #   
 #   Note that the TSV ranking file has the following format
-#   contract_id    address    num_transfer
+#   <contract_id>\t<address>\t<num_transfer>
 #   where:
 #      - contract_id is a unique integer identifier for each contract (starting from 0).
 #      - address is the address of the contract.

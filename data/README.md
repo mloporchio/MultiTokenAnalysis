@@ -11,7 +11,7 @@ The dataset consists of the `erc1155_transfers.json.gz` file, compressed using t
 To run the experiments, please make sure to download and extract it within this directory, 
 so that the file `erc1155_transfers.json` is available.
 
-The current directory also includes a TSV file, named `erc20-721_stats.tsv.xz` compressed using
+The current directory also includes a TSV file, called `erc20-721_stats.tsv.xz` and compressed using
 the XZ utility (https://tukaani.org/xz). This file records the number of ERC-20 and ERC-721 transfer
 events triggered for each block, as such information is used for comparison with the ERC-1155
 standard within the paper. To use this file in the analysis, please make sure to decompress it using the XZ utility, 

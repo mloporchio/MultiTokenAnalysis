@@ -1,5 +1,5 @@
 #   
-#   This preparation script converts the original dataset of ERC-1155 transfers (in compressed JSON format)
+#   This script converts the original dataset of ERC-1155 transfers (stored in compressed JSON format)
 #   into the Parquet format for subsequent analysis. 
 #
 #   Author: Matteo Loporchio

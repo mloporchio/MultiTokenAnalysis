@@ -1,7 +1,9 @@
 #!/bin/bash
 # 
-#   This script takes the input dataset of ERC-1155 transfers 
-#   and builds the corresponding interaction graphs for the top 100 contracts, as well as a ranking of the contracts based on their activity.
+#   This script reads the dataset of ERC-1155 transfers and constructs the list of transfers 
+#   for all the contracts in the dataset. 
+#   
+#   The list of transfers is stored in newline-delimited JSON format, with one file per contract.
 #   
 #   Author: Matteo Loporchio
 #
