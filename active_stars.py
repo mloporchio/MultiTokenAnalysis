@@ -2,14 +2,26 @@
 #   This script counts the number of active contracts up to a certain block height.
 #   For a given block height h, a contract C is considered active if and only if
 #   there exists at least one transfer produced by C in a block with height h' <= h.
+#   The script counts active contracts based on the centralization index of the
+#   corresponding networks. Indeed, networks are classified as in-stars, out-stars, 
+#   in-out stars, and non-star networks based on their in-degree and out-degree 
+#   centralization indices:
+#   - in-stars have in-degree (resp. out-degree) centralization index == 1 (resp. != 1).
+#   - out-stars have in-degree (resp. out-degree) centralization index != 1 (resp. == 1).
+#   - in-out stars have both centralization indices == 1.
+#   - non-star graphs have both indices != 1.
 #   
 #   INPUT:
-#   The dataset of ERC-1155 transfers.
+#   - The dataset of ERC-1155 transfers.
+#   - The TSV file containing information about centralization indices of all networks.
 #
 #   OUTPUT:
 #   A TSV file where each row has the following fields:
 #   - block_id: height of the block;
-#   - num_active_contracts: number of active contracts up to block_id;
+#   - in_stars: number of active in-star networks up to block_id;
+#   - out_stars: number of active out-star networks up to block_id;
+#   - in_out_stars: number of active in-out star graphs up to block_id;
+#   - not_stars: number of active non-star graphs up to block_id.
 #
 #   PRINT:
 #   The number of transfers read from the input file is printed to stdout.
@@ -25,10 +37,13 @@ CENTRALIZATION_FILE = 'results/graph_centralization.tsv'
 OUTPUT_FILE = 'results/active_stars.tsv'
 NULL_ADDRESS = "0x0000000000000000000000000000000000000000"
 
+# Read the ERC-1155 transfer dataset.
 tdf = pl.read_parquet(TRANSFERS_FILE)
 tdf = utils.filter_transfers(tdf)
 tdf = tdf.filter((pl.col('from') != NULL_ADDRESS) & (pl.col('to') != NULL_ADDRESS) & (pl.col('from') != pl.col('to')))
 
+# Read the file including centralization information and partition the graphs into four categories:
+# in-stars, out-stars, in-out-stars and non-star networks.
 cdf = pl.read_csv(CENTRALIZATION_FILE, separator='\t')
 in_contracts = set(cdf.filter((pl.col("in_cent") == 1) & (pl.col("out_cent") != 1))['address'])
 out_contracts = set(cdf.filter((pl.col("in_cent") != 1) & (pl.col("out_cent") == 1))['address'])

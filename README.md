@@ -13,7 +13,6 @@ For space reasons, all data regarding ERC-1155 token transfers are available in 
 https://doi.org/10.5281/zenodo.14901527
 
 
-
 ## Technologies used
 
 - Bash scripting
